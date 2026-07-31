@@ -1,0 +1,346 @@
+<title>ヘルムホルツコイル電卓</title>
+<style>
+:root {
+  --bg: #f6f3ee;
+  --panel: #ffffff;
+  --panel-2: #ece6dc;
+  --line: #ddd4c6;
+  --line-strong: #c9bda8;
+  --ink: #26201a;
+  --ink-soft: #6f6455;
+  --ink-faint: #a89a84;
+  --copper: #b5652d;
+  --copper-ink: #7a3f16;
+  --copper-bg: #f3e2d1;
+  --ok: #3f7a4c;
+  --ok-bg: #e3efe2;
+  --bad: #b23a2e;
+  --bad-bg: #f7e3df;
+  --font-head: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-body: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", ui-sans-serif, system-ui, sans-serif;
+}
+:root[data-theme="dark"] {
+  --bg: #1b1712;
+  --panel: #241f19;
+  --panel-2: #2c261e;
+  --line: #3a3226;
+  --line-strong: #4c4232;
+  --ink: #f1ebe0;
+  --ink-soft: #b9ab95;
+  --ink-faint: #7d715e;
+  --copper: #d98a4c;
+  --copper-ink: #f0b483;
+  --copper-bg: #3a2818;
+  --ok: #7fbf8c;
+  --ok-bg: #223226;
+  --bad: #e08279;
+  --bad-bg: #3a2420;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1712;
+    --panel: #241f19;
+    --panel-2: #2c261e;
+    --line: #3a3226;
+    --line-strong: #4c4232;
+    --ink: #f1ebe0;
+    --ink-soft: #b9ab95;
+    --ink-faint: #7d715e;
+    --copper: #d98a4c;
+    --copper-ink: #f0b483;
+    --copper-bg: #3a2818;
+    --ok: #7fbf8c;
+    --ok-bg: #223226;
+    --bad: #e08279;
+    --bad-bg: #3a2420;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.6;
+}
+.wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1.25rem;
+}
+.eyebrow {
+  font-family: var(--font-head);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--copper-ink);
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+}
+h1 {
+  font-family: var(--font-head);
+  font-size: 26px;
+  font-weight: 600;
+  margin: 0 0 0.4rem;
+  text-wrap: balance;
+  letter-spacing: -0.01em;
+}
+.sub {
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  margin: 0;
+  max-width: 58ch;
+}
+.formula-strip {
+  font-family: var(--font-head);
+  font-size: 13px;
+  color: var(--ink-faint);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  margin: 1.1rem 0 0;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.6rem 1.7rem;
+  margin-bottom: 1.5rem;
+}
+.panel h2 {
+  font-family: var(--font-head);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 1.3rem;
+  font-weight: 600;
+}
+.row {
+  display: grid;
+  grid-template-columns: 108px 1fr 76px;
+  align-items: center;
+  gap: 14px;
+  padding: 0.55rem 0;
+}
+.row + .row {
+  border-top: 1px solid var(--line);
+}
+.row label {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+}
+.row .val {
+  font-family: var(--font-head);
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
+  color: var(--ink);
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line-strong);
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--copper);
+  border: 2px solid var(--panel);
+  box-shadow: 0 0 0 1px var(--line-strong);
+  cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--copper);
+  border: 2px solid var(--panel);
+  box-shadow: 0 0 0 1px var(--line-strong);
+  cursor: pointer;
+}
+input[type="range"]:focus-visible {
+  box-shadow: 0 0 0 2px var(--copper-bg);
+}
+.readouts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+.meter {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+}
+.meter .label {
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.meter .num {
+  font-family: var(--font-head);
+  font-variant-numeric: tabular-nums;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+.meter .unit {
+  font-size: 14px;
+  color: var(--ink-faint);
+  font-weight: 400;
+  margin-left: 3px;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-family: var(--font-head);
+  padding: 3px 8px;
+  border-radius: 20px;
+  margin-top: 8px;
+}
+.pill.ok { background: var(--ok-bg); color: var(--ok); }
+.pill.bad { background: var(--bad-bg); color: var(--bad); }
+.pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.supply-note {
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  margin: 1.1rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+.supply-note b { color: var(--ink-soft); font-weight: 600; }
+footer {
+  margin-top: 2rem;
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Coil design tool</p>
+    <h1>ヘルムホルツコイル電卓</h1>
+    <p class="sub">コイル半径・線径・目標磁場・巻き数を動かすと、必要な電流・電圧・銅線質量をその場で計算します。</p>
+    <div class="formula-strip">B = (4/5)^1.5 · μ₀NI/R 　 R_coil = 16ρR·N/d² 　 M = ρ_cu·π²·R·N·d²</div>
+  </header>
+
+  <section class="panel">
+    <h2>パラメータ</h2>
+    <div class="row">
+      <label for="R">半径 R</label>
+      <input type="range" id="R" min="0.01" max="2.0" step="0.01" value="0.10" />
+      <span class="val" id="R-out">10.0 cm</span>
+    </div>
+    <div class="row">
+      <label for="d">線径 d</label>
+      <input type="range" id="d" min="0.1" max="5" step="0.1" value="1.0" />
+      <span class="val" id="d-out">1.0 mm</span>
+    </div>
+    <div class="row">
+      <label for="B">目標磁場 B</label>
+      <input type="range" id="B" min="0.1" max="3.0" step="0.1" value="1.5" />
+      <span class="val" id="B-out">1.5 mT</span>
+    </div>
+    <div class="row">
+      <label for="N">巻き数 N</label>
+      <input type="range" id="N" min="1" max="1000" step="1" value="300" />
+      <span class="val" id="N-out">300</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>計算結果</h2>
+    <div class="readouts">
+      <div class="meter">
+        <p class="label">必要電流</p>
+        <p class="num" id="I-val">–<span class="unit">A</span></p>
+        <span class="pill" id="I-status"></span>
+      </div>
+      <div class="meter">
+        <p class="label">必要電圧</p>
+        <p class="num" id="V-val">–<span class="unit">V</span></p>
+        <span class="pill" id="V-status"></span>
+      </div>
+      <div class="meter">
+        <p class="label">銅線質量(2コイル計)</p>
+        <p class="num" id="M-val">–<span class="unit">g</span></p>
+      </div>
+    </div>
+    <p class="supply-note">電源制限: <b>35 V / 3 A</b> を想定。超過すると赤で表示されます。</p>
+  </section>
+
+  <footer>ρ_cu = 1.72×10⁻⁸ Ω·m(常温よりやや高め)、銅密度 8960 kg/m³ として計算。</footer>
+</div>
+
+<script>
+const ids = ["R", "d", "B", "N"];
+const els = {};
+ids.forEach((id) => { els[id] = document.getElementById(id); });
+
+const V_MAX = 35, I_MAX = 3;
+const RHO_CU = 1.72e-8, RHO_MASS = 8960, MU0 = 4 * Math.PI * 1e-7;
+const K = Math.pow(4 / 5, 1.5);
+
+function fmt(x, d) { return Number(x).toFixed(d); }
+
+function update() {
+  const R = parseFloat(els.R.value);
+  const d_mm = parseFloat(els.d.value);
+  const B_mT = parseFloat(els.B.value);
+  const N = parseInt(els.N.value, 10);
+
+  document.getElementById("R-out").textContent = fmt(R * 100, 1) + " cm";
+  document.getElementById("d-out").textContent = fmt(d_mm, 1) + " mm";
+  document.getElementById("B-out").textContent = fmt(B_mT, 1) + " mT";
+  document.getElementById("N-out").textContent = N;
+
+  const B = B_mT * 1e-3;
+  const d = d_mm * 1e-3;
+
+  const I = (B * R) / (K * MU0 * N);
+  const R_coil = (16 * RHO_CU * R * N) / (d * d);
+  const V = I * R_coil;
+  const mass_kg = RHO_MASS * Math.PI * Math.PI * R * N * d * d;
+
+  document.getElementById("I-val").innerHTML = fmt(I, 3) + '<span class="unit">A</span>';
+  document.getElementById("V-val").innerHTML = fmt(V, 2) + '<span class="unit">V</span>';
+  document.getElementById("M-val").innerHTML = fmt(mass_kg * 1000, 1) + '<span class="unit">g</span>';
+
+  const iOk = I <= I_MAX;
+  const vOk = V <= V_MAX;
+  const iStatus = document.getElementById("I-status");
+  const vStatus = document.getElementById("V-status");
+  iStatus.textContent = iOk ? "3A以内" : "3A超過";
+  iStatus.className = "pill " + (iOk ? "ok" : "bad");
+  vStatus.textContent = vOk ? "35V以内" : "35V超過";
+  vStatus.className = "pill " + (vOk ? "ok" : "bad");
+}
+
+ids.forEach((id) => els[id].addEventListener("input", update));
+update();
+</script>
